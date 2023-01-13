@@ -1,8 +1,13 @@
-import React from "react";
+import React, { useContext, useState } from "react";
 import { useForm } from "react-hook-form";
 import { Link } from "react-router-dom";
+import { AuthContext } from "../../Contexts/AuthProvider/AuthProvider";
+import toast from "react-hot-toast";
 
 const SignUp = () => {
+  const { createUser, updateUserProfile } = useContext(AuthContext);
+  const [signUpError, setSignUpError] = useState("");
+
   const {
     register,
     handleSubmit,
@@ -10,7 +15,24 @@ const SignUp = () => {
   } = useForm();
 
   const handleSignUp = (data) => {
+    setSignUpError("");
     console.log(data);
+    createUser(data.email, data.password)
+      .then((result) => {
+        const user = result.user;
+        console.log(user);
+        toast.success("Sign Up Successfully!");
+        const userInfo = {
+          displayName: data.name,
+        };
+        updateUserProfile(userInfo)
+          .then(() => {})
+          .catch((error) => console.error(error));
+      })
+      .catch((error) => {
+        setSignUpError(error.message);
+        console.error(error);
+      });
   };
 
   return (
@@ -55,10 +77,10 @@ const SignUp = () => {
             <input
               {...register("password", {
                 required: "Password is required",
-                pattern: {
+                /* pattern: {
                   value: /(?=.*[A-Z])(?=.*[a-z])(?=.*?[0-9])(?=.*?[!@#\$&*~])/,
                   message: "Password must be strong",
-                },
+                }, */
                 minLength: {
                   value: 6,
                   message: "Password must be 6 characters long",
@@ -75,13 +97,16 @@ const SignUp = () => {
           </div>
           <input
             type="submit"
-            className="btn btn-accent w-full max-w-xs"
+            className="btn btn-accent w-full max-w-xs mt-4"
             value={"Sign Up"}
           />
+          {signUpError && (
+            <p className="text-red-500 font-medium">{signUpError}</p>
+          )}
         </form>
         <p>
           Already have account{" "}
-          <Link className="text-primary font-medium" to={"/signup"}>
+          <Link className="text-primary font-medium" to={"/login"}>
             Login
           </Link>
         </p>
