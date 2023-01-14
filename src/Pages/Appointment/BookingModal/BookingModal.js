@@ -3,8 +3,8 @@ import React, { useContext } from "react";
 import { AuthContext } from "../../../Contexts/AuthProvider/AuthProvider";
 import toast from "react-hot-toast";
 
-const BookingModal = ({ treatment, selectedDate, setTreatment }) => {
-  const { name, slots } = treatment;
+const BookingModal = ({ treatment, selectedDate, setTreatment, refetch }) => {
+  const { name: treatmentName, slots } = treatment;
   const date = format(selectedDate, "PP");
   const { user } = useContext(AuthContext);
 
@@ -18,13 +18,12 @@ const BookingModal = ({ treatment, selectedDate, setTreatment }) => {
 
     const booking = {
       appointmentDate: date,
-      treatment: name,
+      treatment: treatmentName,
       patient: name,
       slot,
       email,
       phone,
     };
-    console.log(booking);
 
     fetch("http://localhost:5000/bookings", {
       method: "POST",
@@ -38,6 +37,7 @@ const BookingModal = ({ treatment, selectedDate, setTreatment }) => {
         if (data.acknowledged) {
           setTreatment(null);
           toast.success("Thank You! Your Booking Confirmed.");
+          refetch()
         }
       });
   };
@@ -53,7 +53,7 @@ const BookingModal = ({ treatment, selectedDate, setTreatment }) => {
           >
             ✕
           </label>
-          <h3 className="text-lg font-bold">{name}</h3>
+          <h3 className="text-lg font-bold">{treatmentName}</h3>
           <form
             onSubmit={handleBooking}
             className="grid grid-cols-1 gap-3 mt-10"
