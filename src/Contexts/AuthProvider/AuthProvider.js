@@ -29,7 +29,7 @@ const AuthProvider = ({ children }) => {
 
   // Update User Profile
   const updateUserProfile = (userInfo) => {
-    return updateProfile(user, userInfo);
+    return updateProfile(auth.currentUser, userInfo);
   };
 
   // Log out
