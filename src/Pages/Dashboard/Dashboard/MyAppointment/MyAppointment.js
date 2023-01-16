@@ -6,10 +6,14 @@ const MyAppointment = () => {
   const { user } = useContext(AuthContext);
   const url = `http://localhost:5000/bookings?email=${user?.email}`;
 
-  const { data: bookings = [] } = useQuery({
+  const { data: bookings = [], } = useQuery({
     queryKey: ["bookings", user?.email],
     queryFn: async () => {
-      const res = await fetch(url);
+      const res = await fetch(url, {
+        headers: {
+          authorization: `bearer ${localStorage.getItem("accessToken")}`,
+        },
+      });
       const data = res.json();
       return data;
     },
@@ -17,7 +21,9 @@ const MyAppointment = () => {
 
   return (
     <div>
-      <h3 className="text-3xl mb-5">My Appointments</h3>
+      <div className="flex justify-between">
+        <h3 className="text-3xl mb-5">My Appointments</h3>
+      </div>
       <div className="overflow-x-auto">
         <table className="table w-full">
           <thead>
@@ -30,13 +36,13 @@ const MyAppointment = () => {
             </tr>
           </thead>
           <tbody>
-            {bookings.map((booking, idx) => (
-              <tr key={booking._id} className="hover">
+            {bookings?.map((booking, idx) => (
+              <tr key={booking?._id} className="hover">
                 <th>{idx + 1}</th>
-                <td>{booking.patient}</td>
-                <td>{booking.treatment}</td>
-                <td>{booking.appointmentDate}</td>
-                <td>{booking.slot}</td>
+                <td>{booking?.patient}</td>
+                <td>{booking?.treatment}</td>
+                <td>{booking?.appointmentDate}</td>
+                <td>{booking?.slot}</td>
               </tr>
             ))}
           </tbody>
