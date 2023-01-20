@@ -6,12 +6,11 @@ import Loading from '../../Shared/Loading/Loading';
 
 const ManageDoctors = () => {
     const [deletingDoctor, setDeletingDoctor] = useState(null)
+
     const closeModal = () => {
         setDeletingDoctor(null)
     }
-    const handleDeleteDoctor = (doctor) => {
-        console.log(doctor);
-    }
+
     const { data: doctors, isLoading, refetch } = useQuery({
         queryKey: ['doctors'],
         queryFn: async () => {
@@ -29,25 +28,27 @@ const ManageDoctors = () => {
         }
     })
 
-    // const handleDeleteDoctor = id => {
-    //     const proceed = window.confirm('Are you sure to delete this doctor!')
-    //     if (proceed) {
-    //         fetch(`http://localhost:5000/doctors/${id}`, {
-    //             method: 'DELETE'
-    //         })
-    //             .then(res => res.json())
-    //             .then(data => {
-    //                 if (data.deletedCount) {
-    //                     toast.success('Successfully Deleted The Doctor!')
-    //                     refetch()
-    //                 }
-    //             })
-    //     }
-    // }
+    const handleDeleteDoctor = (doctor) => {
+        console.log(doctor);
+        fetch(`http://localhost:5000/doctors/${doctor?._id}`, {
+            method: 'DELETE',
+            headers: {
+                authorization: `bearer ${localStorage.getItem('accessToken')}`
+            }
+        })
+            .then(res => res.json())
+            .then(data => {
+                if (data.deletedCount) {
+                    toast.success(`Successfully Deleted The Doctor ${doctor.name}!`)
+                    refetch()
+                }
+            })
+    }
 
     if (isLoading) {
         return <Loading></Loading>
     }
+
     return (
         <div>
             <h3 className="text-3xl mb-5">Manage Doctors : {doctors?.length}</h3>
@@ -88,6 +89,7 @@ const ManageDoctors = () => {
                 title={`Are you sure, you want to delete?`}
                 message={`If you delete ${deletingDoctor.name}.It cannot be undone!`}
                 successAction={handleDeleteDoctor}
+                successButtonName="Delete"
                 modalData={deletingDoctor}
                 closeModal={closeModal}
             ></ConfirmationModal>}
